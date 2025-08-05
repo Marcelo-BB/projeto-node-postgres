@@ -1,0 +1,16 @@
+{
+  "name": "projeto-node-postgres",
+  "version": "1.0.0",
+  "description": "Meu primeiro projeto usando Postgres e Node! ",
+  "main": "index.js",
+  "scripts": {
+    "dev": "npx tsx watch ./src/server.ts"
+  },
+  "author": "Marcelo Bento Botelho",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^24.2.0",
+    "tsx": "^4.20.3",
+    "typescript": "^5.9.2"
+  }
+}
