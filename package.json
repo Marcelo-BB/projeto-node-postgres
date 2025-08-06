@@ -4,13 +4,19 @@
   "description": "Meu primeiro projeto usando Postgres e Node! ",
   "main": "index.js",
   "scripts": {
-    "dev": "npx tsx watch ./src/server.ts"
+    "dev": "npx tsx watch ./src/server.ts",
+    "format": "prettier --write ."
   },
   "author": "Marcelo Bento Botelho",
   "license": "ISC",
   "devDependencies": {
+    "@types/express": "^5.0.3",
     "@types/node": "^24.2.0",
+    "prettier": "^3.6.2",
     "tsx": "^4.20.3",
     "typescript": "^5.9.2"
+  },
+  "dependencies": {
+    "express": "^5.1.0"
   }
 }
