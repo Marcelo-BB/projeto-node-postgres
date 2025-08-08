@@ -1,16 +1,24 @@
-import express  from "express";
-import { PrismaClient } from "./generated/prisma/index.js"; 
+import express from 'express';
+import { PrismaClient } from './generated/prisma/index.js';
 const port: number = 3000;
 const app = express();
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 app.get('/', (req, res) => {
   res.send('Home Page');
 });
 
 app.get('/movies', async (req, res) => {
-  const movies = await prisma.movie.findMany()
-  res.json(movies)
+  const movies = await prisma.movie.findMany({
+    orderBy: {
+      title: 'asc',
+    },
+    include: {
+       genres: true,
+       languages: true
+    }
+  });
+  res.json(movies);
 });
 
 app.listen(3000, () => {
