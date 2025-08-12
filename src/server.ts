@@ -26,6 +26,16 @@ app.get('/movies', async (req, res) => {
 app.post('/movies', async (req, res) => {
   const { title, language_id, genre_id, oscar_count, release_date } = req.body;
   try {
+    const duplicatedMovieName = await prisma.movie.findFirst({
+      where: {
+        title: { equals: title, mode: 'insensitive' },
+      },
+    });
+
+    if (duplicatedMovieName) {
+      return res.status(409).send('Já há um registro com este título');
+    }
+
     await prisma.movie.create({
       data: {
         title,
