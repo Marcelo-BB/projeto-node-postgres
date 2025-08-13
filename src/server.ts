@@ -72,7 +72,7 @@ app.put('/movies/:id', async (req, res) => {
     const duplicatedMovieName = await prisma.movie.findFirst({
       where: {
         title: { equals: data.title, mode: 'insensitive' },
-        NOT: {id: movieID}
+        NOT: { id: movieID },
       },
     });
 
@@ -90,7 +90,25 @@ app.put('/movies/:id', async (req, res) => {
   } catch (err) {
     return res.status(500).send('Falha ao atualizar o registro!');
   }
-  res.status(200).send("Registro atualizado com sucesso!");
+  res.status(200).send('Registro atualizado com sucesso!');
+});
+
+app.delete('/movies/:id', async (req, res) => {
+  const id = Number(req.params.id);
+
+  try {
+    const idVerification = await prisma.movie.findUnique({ where: { id } });
+
+    if (!idVerification) {
+      return res.status(404).send('ID não encontrado no banco!');
+    }
+
+    await prisma.movie.delete({ where: { id } });
+  } catch (error) {
+    return res.status(500).send('Não foi possível deletar o Registro')
+  }
+
+  return res.status(200).send('Registro deletado com sucesso');
 });
 
 app.listen(3000, () => {
