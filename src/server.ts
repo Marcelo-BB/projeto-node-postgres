@@ -52,6 +52,47 @@ app.post('/movies', async (req, res) => {
   res.status(201).send('Post efetuado com sucesso');
 });
 
+app.put('/movies/:id', async (req, res) => {
+  const movieID = Number(req.params.id);
+
+  try {
+    const idVerification = await prisma.movie.findUnique({
+      where: {
+        id: movieID,
+      },
+    });
+
+    if (!idVerification) {
+      return res.status(404).send('ID não encontrado no banco!');
+    }
+
+    const data = { ...req.body };
+    data.release_date = data.release_date ? new Date(data.release_date) : undefined;
+
+    const duplicatedMovieName = await prisma.movie.findFirst({
+      where: {
+        title: { equals: data.title, mode: 'insensitive' },
+        NOT: {id: movieID}
+      },
+    });
+
+    if (duplicatedMovieName) {
+      return res.status(409).send('Já há um registro com este título');
+    }
+
+    const movieToUpdate = await prisma.movie.update({
+      where: {
+        id: movieID,
+      },
+
+      data: data,
+    });
+  } catch (err) {
+    return res.status(500).send('Falha ao atualizar o registro!');
+  }
+  res.status(200).send("Registro atualizado com sucesso!");
+});
+
 app.listen(3000, () => {
   console.log(`Servidor iniciado na porta http://localhost:${port}`);
 });
