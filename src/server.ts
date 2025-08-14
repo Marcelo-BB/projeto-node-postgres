@@ -23,6 +23,33 @@ app.get('/movies', async (req, res) => {
   res.json(movies);
 });
 
+app.get('/movies/:genreName', async (req, res) => {
+  try {
+    const moviesFilteredByGenre = await prisma.movie.findMany({
+      include: {
+        genres: true,
+        languages: true,
+      },
+      where: {
+        genres: {
+          name: {
+            equals: req.params.genreName,
+            mode: 'insensitive',
+          },
+        },
+      },
+    });
+
+    if (moviesFilteredByGenre.length === 0) {
+      return res.status(404).send('Nenhum filme do gênero encontrado!')
+    }
+
+    res.status(200).send(moviesFilteredByGenre);
+  } catch (err) {
+    return res.status(500).send("O servidor encontrou um erro!");
+  }
+});
+
 app.post('/movies', async (req, res) => {
   const { title, language_id, genre_id, oscar_count, release_date } = req.body;
   try {
@@ -105,7 +132,7 @@ app.delete('/movies/:id', async (req, res) => {
 
     await prisma.movie.delete({ where: { id } });
   } catch (error) {
-    return res.status(500).send('Não foi possível deletar o Registro')
+    return res.status(500).send('Não foi possível deletar o Registro');
   }
 
   return res.status(200).send('Registro deletado com sucesso');
