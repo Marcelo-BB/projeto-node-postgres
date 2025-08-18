@@ -1,10 +1,15 @@
 import express from 'express';
-import { PrismaClient } from './generated/prisma/index.js';
 const port: number = 3000;
 const app = express();
+
+import { PrismaClient } from './generated/prisma/index.js';
 const prisma = new PrismaClient();
 
+import SwaggerUiOptions from 'swagger-ui-express';
+import SwaggerDocument from './swagger.json' with {type: 'json'}
+
 app.use(express.json());
+app.use('/docs', SwaggerUiOptions.serve, SwaggerUiOptions.setup(SwaggerDocument))
 
 app.get('/', (req, res) => {
   res.send('Home Page');
