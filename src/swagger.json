@@ -54,13 +54,74 @@
         },
         "responses": {
           "200": {
-            "description": "Retorna uma lista de filmes"
+            "description": "Registro atualizado com sucesso"
           },
           "404": {
-            "description": "Retorna uma lista de filmes"
+            "description": "ID não encontrado"
           },
           "500": {
             "description": "Falha ao atualizar o registro do filme"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Movie"],
+        "summary": "Remover um registro",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "ID do filme a ser removido",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Registro deletado com sucesso"
+          },
+          "404": {
+            "description": "ID não encontrado"
+          },
+          "500": {
+            "description": "Falha ao remover o registro do filme"
+          }
+        }
+      }
+    },
+    "/movies/{genreName}": {
+      "get": {
+        "tags": ["Movie"],
+        "summary": "Filtra os registros por gênero",
+        "parameters": [
+          {
+            "name": "genreName",
+            "in": "path",
+            "required": true,
+            "description": "Nome do gênero",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Retorna uma lista de filmes filtrados",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Movie"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Falha ao filtrar por gênero"
           }
         }
       }
