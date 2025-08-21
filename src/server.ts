@@ -2,7 +2,7 @@ import express from 'express';
 const port: number = 3000;
 const app = express();
 
-import { PrismaClient } from './generated/prisma/index.js';
+import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 import SwaggerUiOptions from 'swagger-ui-express';
