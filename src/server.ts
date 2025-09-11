@@ -6,10 +6,10 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 import SwaggerUiOptions from 'swagger-ui-express';
-import SwaggerDocument from './swagger.json' with {type: 'json'}
+import SwaggerDocument from './swagger.json' with { type: 'json' };
 
 app.use(express.json());
-app.use('/docs', SwaggerUiOptions.serve, SwaggerUiOptions.setup(SwaggerDocument))
+app.use('/docs', SwaggerUiOptions.serve, SwaggerUiOptions.setup(SwaggerDocument));
 
 app.get('/', (req, res) => {
   res.send('Home Page');
@@ -46,12 +46,12 @@ app.get('/movies/:genreName', async (req, res) => {
     });
 
     if (moviesFilteredByGenre.length === 0) {
-      return res.status(404).send('Nenhum filme do gênero encontrado!')
+      return res.status(404).send('Nenhum filme do gênero encontrado!');
     }
 
     res.status(200).send(moviesFilteredByGenre);
   } catch (err) {
-    return res.status(500).send("O servidor encontrou um erro!");
+    return res.status(500).send('O servidor encontrou um erro!');
   }
 });
 
@@ -141,6 +141,71 @@ app.delete('/movies/:id', async (req, res) => {
   }
 
   return res.status(200).send('Registro deletado com sucesso');
+});
+
+app.post('/genres', async (req, res) => {
+  const { name } = req.body;
+
+  try {
+    const duplicatedGenreName = await prisma.genre.findFirst({
+      where: {
+        name: { equals: name, mode: 'insensitive' },
+      },
+    });
+
+    if (duplicatedGenreName) {
+      return res.status(409).send('Já há um registro com este título');
+    }
+
+    await prisma.genre.create({
+      data: {
+        name
+      },
+    });
+  } catch (error) {
+    return res.status(500).send('Falha a cadastrar o gênero');
+  }
+
+  res.status(201).send('Post efetuado com sucesso');
+});
+
+app.put('/genres/:id', async (req, res) => {
+  const genreID = Number(req.params.id);
+
+  try {
+    const idVerification = await prisma.genre.findUnique({
+      where: {
+        id: genreID,
+      },
+    });
+
+    if (!idVerification) {
+      return res.status(404).send('ID não encontrado no banco!');
+    }
+
+    const data = { ...req.body };
+    const duplicatedGenreName = await prisma.genre.findFirst({
+      where: {
+        name: { equals: data.name, mode: 'insensitive' },
+        NOT: { id: genreID },
+      },
+    });
+
+    if (duplicatedGenreName) {
+      return res.status(409).send('Já há um registro com este título');
+    }
+
+    const genreToUpdate = await prisma.genre.update({
+      where: {
+        id: genreID,
+      },
+
+      data: data,
+    });
+  } catch (err) {
+    return res.status(500).send('Falha ao atualizar o registro!');
+  }
+  res.status(200).send('Registro atualizado com sucesso!');
 });
 
 app.listen(3000, () => {
