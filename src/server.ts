@@ -143,6 +143,15 @@ app.delete('/movies/:id', async (req, res) => {
   return res.status(200).send('Registro deletado com sucesso');
 });
 
+app.get('/genres', async (req, res) => {
+  const genre = await prisma.genre.findMany({
+    orderBy: {
+      id: 'asc',
+    },
+  });
+  res.json(genre);
+});
+
 app.post('/genres', async (req, res) => {
   const { name } = req.body;
 
@@ -206,6 +215,24 @@ app.put('/genres/:id', async (req, res) => {
     return res.status(500).send('Falha ao atualizar o registro!');
   }
   res.status(200).send('Registro atualizado com sucesso!');
+});
+
+app.delete('/genres/:id', async (req, res) => {
+  const id = Number(req.params.id);
+
+  try {
+    const idVerification = await prisma.genre.findUnique({ where: { id } });
+
+    if (!idVerification) {
+      return res.status(404).send('ID não encontrado no banco!');
+    }
+
+    await prisma.genre.delete({ where: { id } });
+  } catch (error) {
+    return res.status(500).send('Não foi possível deletar o Registro');
+  }
+
+  return res.status(200).send('Registro deletado com sucesso');
 });
 
 app.listen(3000, () => {
