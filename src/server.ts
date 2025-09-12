@@ -7,6 +7,8 @@ const prisma = new PrismaClient();
 
 import SwaggerUiOptions from 'swagger-ui-express';
 import SwaggerDocument from './swagger.json' with { type: 'json' };
+import { stringify } from 'querystring';
+import { log } from 'console';
 
 app.use(express.json());
 app.use('/docs', SwaggerUiOptions.serve, SwaggerUiOptions.setup(SwaggerDocument));
@@ -25,7 +27,17 @@ app.get('/movies', async (req, res) => {
       languages: true,
     },
   });
-  res.json(movies);
+  const totalMovies = movies.length;
+
+  const totalDuration = movies.reduce((sum, movies) => sum + (movies?.duration ?? 0), 0);
+  const averageDuration = totalDuration / totalDuration;
+
+  console.log(averageDuration);
+  res.json({
+    totalDuration,
+    averageDuration,
+    movies
+  })
 });
 
 app.get('/movies/:genreName', async (req, res) => {
@@ -101,14 +113,14 @@ app.put('/movies/:id', async (req, res) => {
     const data = { ...req.body };
     data.release_date = data.release_date ? new Date(data.release_date) : undefined;
 
-    const duplicatedMovieName = await prisma.movie.findFirst({
-      where: {
-        title: { equals: data.title, mode: 'insensitive' },
-        NOT: { id: movieID },
-      },
-    });
+    if (data.title) {
+      await prisma.movie.findFirst({
+        where: {
+          title: { equals: data.title, mode: 'insensitive' },
+          NOT: { id: movieID },
+        },
+      });
 
-    if (duplicatedMovieName) {
       return res.status(409).send('Já há um registro com este título');
     }
 
@@ -168,7 +180,7 @@ app.post('/genres', async (req, res) => {
 
     await prisma.genre.create({
       data: {
-        name
+        name,
       },
     });
   } catch (error) {
