@@ -30,11 +30,11 @@ app.get('/movies', async (req, res) => {
   const totalMovies = movies.length;
 
   const totalDuration = movies.reduce((sum, movies) => sum + (movies?.duration ?? 0), 0);
-  const averageDuration = totalDuration / totalDuration;
+  const averageDuration = totalDuration / totalMovies;
 
   console.log(averageDuration);
   res.json({
-    totalDuration,
+    totalMovies,
     averageDuration,
     movies
   })
