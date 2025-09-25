@@ -7,8 +7,6 @@ const prisma = new PrismaClient();
 
 import SwaggerUiOptions from 'swagger-ui-express';
 import SwaggerDocument from './swagger.json' with { type: 'json' };
-import { stringify } from 'querystring';
-import { log } from 'console';
 
 app.use(express.json());
 app.use('/docs', SwaggerUiOptions.serve, SwaggerUiOptions.setup(SwaggerDocument));
@@ -17,27 +15,34 @@ app.get('/', (req, res) => {
   res.send('Home Page');
 });
 
-app.get('/movies', async (req, res) => {
-  const movies = await prisma.movie.findMany({
-    orderBy: {
-      id: 'asc',
-    },
-    include: {
-      genres: true,
-      languages: true,
-    },
-  });
-  const totalMovies = movies.length;
+app.get('/movies/:sortBy', async (req, res) => {
+  try {
+    let sortBy = req.params.sortBy;
+    const sortOrder = 'asc';
 
-  const totalDuration = movies.reduce((sum, movies) => sum + (movies?.duration ?? 0), 0);
-  const averageDuration = totalDuration / totalMovies;
+    const movies = await prisma.movie.findMany({
+      orderBy: {
+        [sortBy]: sortOrder,
+      },
+      include: {
+        genres: true,
+        languages: true,
+      },
+    });
+    const totalMovies = movies.length;
 
-  console.log(averageDuration);
-  res.json({
-    totalMovies,
-    averageDuration,
-    movies
-  })
+    const totalDuration = movies.reduce((sum, movies) => sum + (movies?.duration ?? 0), 0);
+    const averageDuration = totalDuration / totalMovies;
+
+    console.log(averageDuration);
+    res.json({
+      totalMovies,
+      averageDuration,
+      movies,
+    });
+  } catch (err) {
+    return res.status(500).send('O servidor encontrou um erro! Parâmetro de Ordenação Válido?');
+  }
 });
 
 app.get('/movies/:genreName', async (req, res) => {
